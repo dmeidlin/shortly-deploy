@@ -3,6 +3,13 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
+      options: {
+        separator: ';'
+      },
+      dist: {
+        src: './public/**/*.js',
+        dest: './public/dist/production.js'
+      }
     },
 
     mochaTest: {
@@ -21,11 +28,15 @@ module.exports = function(grunt) {
     },
 
     uglify: {
+      files: {
+      './public/dist/production.js': ['./public/dist/production.min.js']
+      }
     },
 
     jshint: {
       files: [
-        // Add filespec list here
+        './public/**/*.js',
+        './test/ServerSpec.js'
       ],
       options: {
         force: 'true',
@@ -38,6 +49,15 @@ module.exports = function(grunt) {
     },
 
     cssmin: {
+      options: {
+        shorthandCompacting: false,
+        roundingPrecision: -1
+      },
+      target: {
+        files: {
+          './public/dist/style.min.css': ['./public/style.css']
+        }
+      }
     },
 
     watch: {
@@ -59,6 +79,7 @@ module.exports = function(grunt) {
 
     shell: {
       prodServer: {
+        command: 'git push heroku master'
       }
     },
   });
@@ -94,18 +115,24 @@ module.exports = function(grunt) {
   ]);
 
   grunt.registerTask('build', [
+    'jshint',
+    'concat',
+    'uglify'
   ]);
 
   grunt.registerTask('upload', function(n) {
     if(grunt.option('prod')) {
       // add your production server task here
+      grunt.task.run([ 'shell' ]);
     } else {
       grunt.task.run([ 'server-dev' ]);
     }
   });
 
   grunt.registerTask('deploy', [
-    // add your deploy tasks here
+    'test',
+    'build',
+    'upload'
   ]);
 
 
