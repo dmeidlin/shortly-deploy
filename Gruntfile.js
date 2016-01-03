@@ -2,12 +2,13 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    
     concat: {
       options: {
         separator: ';'
       },
       dist: {
-        src: './public/**/*.js',
+        src: './public/client/*.js',
         dest: './public/dist/production.js'
       }
     },
@@ -114,20 +115,31 @@ module.exports = function(grunt) {
     'mochaTest'
   ]);
 
+  grunt.registerTask('mochaErr','test for mocha error', function(){
+    grunt.task.requires('mochaTest');
+    grunt.log.writeln("Error in mocha testing.");
+  });
+
   grunt.registerTask('build', [
     'jshint',
     'concat',
     'uglify'
   ]);
+  
+  grunt.registerTask('jsHintErr','test for jshint error', function(){
+    grunt.task.requires('jshint');
+    grunt.log.writeln("Error in jshint.");
+  });
 
   grunt.registerTask('upload', function(n) {
     if(grunt.option('prod')) {
-      // add your production server task here
       grunt.task.run([ 'shell' ]);
     } else {
       grunt.task.run([ 'server-dev' ]);
     }
   });
+
+  grunt.registerTask('heroku:development', 'build');
 
   grunt.registerTask('deploy', [
     'test',
